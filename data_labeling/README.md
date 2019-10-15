@@ -8,10 +8,12 @@ of the laser that form part of a person).
 
 To labeling the data we use as groundh-truth data the KIO RTLS System. To get the information from KIO RTLS in ROS we need the package
 kio_rtls available in github:
+```
 $ cd ~/catkin_ws
 $ git clone https://github.com/am-guerrero/kio_rtls.git
 $ cd ..
 $ catkin_make
+```
 
 ## Execution
 1.- Change the name of the topic where kio_rtls publish
