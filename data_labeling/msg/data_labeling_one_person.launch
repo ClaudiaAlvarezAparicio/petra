@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="rosbag_file" default="" />
+	<arg name="tag_name" default="/kio/PointStamped/4037/out" /> <!--Name of the KIO RTLS tag-->
+	
+	<param name="use_sim_time" value="true" />
+
+	<node pkg="data_labeling" type="gather_npy_data_bw.py" name="gather_npy_data_bw" output="screen">
+		<param name="rosbag_file" value="$(arg rosbag_file)"/>
+	</node>
+
+	<node pkg="data_labeling" type="data_labeling_one_person" name="data_labeling_one_person" output="screen">
+		<param name="tag_name" value="$(arg tag_name)"/>
+	</node>
+
+	<node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg rosbag_file) " required="true"/>
+
+</launch>

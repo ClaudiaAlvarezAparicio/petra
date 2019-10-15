@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node pkg="petra" type="petra" name="petra" args="" output="screen">
+    <rosparam file="$(find petra)/config/parameters.yaml" command="load" />
+  </node>
+
+
+</launch>
