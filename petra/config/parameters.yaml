@@ -3,7 +3,7 @@ maxLegsDistance: 0.50 # maximum distance of legs (meters)
 minLegsDistance: 0.1 # minimum distance betweeen legs (meters)
 correlationEuclidean: false # Activate/Deactivate euclidean correlation (boolean)
 correlationKalman: true # Activate/Deactivate Kalman Filter correlation (boolean)
-historicTime: 5 # Time of people in the history (seconds)
+historicTime: 30 # Time of people in the history (seconds)
 petraTimer: 0.01 # PeTra process timer (seconds)
 networkModel: "model.pb" # Network model
 outNerworkLayer: "conv2d_19/Sigmoid" # Output layer of neural network model
