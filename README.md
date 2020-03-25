@@ -46,16 +46,36 @@ Edit the different parameters of petra/config/parameters.yaml
 
 ### Execution
 
-Execution with a rosbag:
-
+Execution with a rosbag:  
 ```
 roslaunch petra petra_rosbag.launch rosbag_file:=absolute_path_to_bag_file
 ```
-
-Execution in real time:
-
+Execution in real time:  
 ```
 roslaunch petra petra.launch
+```
+
+## Docker Image   
+To test PeTra we have create a docker image, steps to test it:  
+```  
+$ docker pull claudiaalvarezaparicio/petra:kinetic  
+$ docker run -d -p 6901:6901 -e VNC_PW=petra --name=petra claudiaalvarezaparicio/petra:kinetic  
+```  
+In the browser: http://localhost:6901/  
+Password: petra  
+  
+### Execute PeTra in docker  
+1.- Open terminal:   
+```
+$ roscore  
+```
+2.- Open terminal:  
+```
+$ rosrun rviz rviz  
+```  
+3.- Open terminal  
+```
+$ roslaunch petra petra_rosbag.launch rosbag_file:=/home/student/rosbags/kitchen1.bag  
 ```
 
 ## Hardware Specifications
@@ -103,5 +123,3 @@ Once the model is trained and in a TensorFlow format.
 ```
 cp petra/neural_network/tf_keras_folder/model/model.pb /petra/petra/model/
 ```
-
-##
