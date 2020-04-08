@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(petra)
 add_compile_options(-std=c++11)
-set(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev/)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -10,8 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roslib
   tensorflow_ros_cpp
-  OpenCV
 )
+find_package(OpenCV REQUIRED)
 
 add_message_files(
  FILES
@@ -36,6 +35,7 @@ include_directories(
   include
   ${tensorflow_ros_cpp_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 add_executable(petra src/petra.cpp
                      src/networkPrediction.cpp
@@ -44,4 +44,4 @@ add_executable(petra src/petra.cpp
                      src/kalmanFilterCorrelation.cpp)
 
 add_dependencies(petra ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(petra ${tensorflow_ros_cpp_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(petra ${tensorflow_ros_cpp_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBS})
