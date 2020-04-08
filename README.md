@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* ROS KINECTIC
+* ROS KINECTIC or ROS MELODIC
 * ROS TensorFlow installation
 ```
 $ cd ~/catkin_ws/src/  
