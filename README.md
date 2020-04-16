@@ -56,11 +56,18 @@ roslaunch petra petra.launch
 ```
 
 ## Docker Image   
-To test PeTra we have create a docker image, steps to test it:  
+To test PeTra we have create tow docker images, steps to test it:  
+* ROS Kinetic
 ```  
 $ docker pull claudiaalvarezaparicio/petra:kinetic  
 $ docker run -d -p 6901:6901 -e VNC_PW=petra --name=petra claudiaalvarezaparicio/petra:kinetic  
 ```  
+* ROS Melodic
+```  
+$ docker pull claudiaalvarezaparicio/petra:melodic  
+$ docker run -d -p 6901:6901 -e VNC_PW=petra --name=petra claudiaalvarezaparicio/petra:melodic  
+```  
+
 In the browser: http://localhost:6901/  
 Password: petra  
   
@@ -77,6 +84,12 @@ $ rosrun rviz rviz
 ```
 $ roslaunch petra petra_rosbag.launch rosbag_file:=/home/student/rosbags/kitchen1.bag  
 ```
+
+## Stop and Remove Docker Container   
+```  
+$ docker stop petra
+$ docker rm petra 
+```  
 
 ## Hardware Specifications
 The tool has been test with a Hokuyo URG-04LX-UG01 (https://www.hokuyo-aut.jp/search/single.php?serial=166).
