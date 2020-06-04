@@ -61,8 +61,8 @@ def join_data_npy(listNPY_raw, listNPY_label, directory):
 # Methot that creates two npy files with the information that receives
 def save_npy_global(npy_raw_global, npy_label_global, directory):
     
-    npy_raw = np.ndarray((len(npy_raw_global), 1, image_rows, image_cols), dtype=np.uint8)
-    npy_label = np.ndarray((len(npy_label_global),1, image_rows, image_cols), dtype=np.uint8)
+    npy_raw = np.ndarray((len(npy_raw_global), image_rows, image_cols, 1), dtype=np.uint8)
+    npy_label = np.ndarray((len(npy_label_global), image_rows, image_cols,1), dtype=np.uint8)
     
     for i in range(0, len(npy_raw_global)):
         npy_raw[i] = np.array([npy_raw_global[i]])

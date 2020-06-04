@@ -34,3 +34,8 @@ add_executable(data_labeling_one_person src/data_labeling_one_person.cpp)
 target_link_libraries(data_labeling_one_person ${catkin_LIBRARIES})
 target_link_libraries(data_labeling_one_person ${OpenCV_LIBS})
 add_dependencies(data_labeling_one_person data_labeling_generate_messages_cpp)
+
+add_executable(data_labeling_with_petra src/data_labeling_with_petra.cpp)
+target_link_libraries(data_labeling_with_petra ${catkin_LIBRARIES})
+target_link_libraries(data_labeling_with_petra ${OpenCV_LIBS})
+add_dependencies(data_labeling_with_petra data_labeling_generate_messages_cpp)

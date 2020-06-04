@@ -4,7 +4,11 @@ This node (data_labeling_one_person) allow label the data to train the neural ne
 white images. The first contains all the points of the laser and the second contains this points labeled (only contains the points
 of the laser that form part of a person).
 
-## Requirements
+
+
+## Execution with KIO
+
+### Requirements
 
 To labeling the data we use as groundh-truth data the KIO RTLS System. To get the information from KIO RTLS in ROS we need the package
 kio_rtls available in github:
@@ -15,12 +19,17 @@ $ cd ..
 $ catkin_make
 ```
 
-## Execution
+### For launch it
 1.- Change the name of the topic where kio_rtls publish
 
 2.- roslaunch data_labeling data_labeling_one_person.launch rosbag_file:=<absolute_path_to_bag_file>
 
 This launcher run the node data_labeling_one_person and the script gather_npy_data_bw.py
+
+## Execution with PeTra
+In this case, the labeling of the information to train the neural network used by PeTra, is carried out using the data provided by itself. It is necessary configure the topic of the LIDAR in the PeTra's parameter.yaml file
+
+roslaunch data_labeling data_labeling_with_petra.launch rosbag_file:=<absolute_path_to_bag_file> npy_directory:=<absolute_path_to_directory_where_save_npys>
 
 ## Scripts explanation
 
