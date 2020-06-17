@@ -14,7 +14,7 @@ using namespace tensorflow;
 using namespace ros;
 using namespace cv;
 
-#define LENGTH_MATRIX 512
+#define LENGTH_MATRIX 256
 
 
 namespace networkprediction{

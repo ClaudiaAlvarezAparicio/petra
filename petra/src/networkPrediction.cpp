@@ -109,7 +109,7 @@ bool NetworkPrediction::isGoodValue(float num){
     goodValue = false;
   } else if (std::isinf(num) || std::isinf(-num)){
     goodValue = false;
-  } else if (num > 10.24){ // TODO para 5 else if (num > 5.12){
+  } else if (num > 5.12){ // TODO para 5 else if (num > 5.12){
     goodValue = false;
   }
 

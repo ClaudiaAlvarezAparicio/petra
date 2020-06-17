@@ -9,7 +9,7 @@
 using namespace cv;
 using namespace ros;
 
-#define LENGTH_MATRIX 512
+#define LENGTH_MATRIX 256
 
 namespace processimage{
   class ProcessImage{

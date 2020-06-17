@@ -76,6 +76,7 @@ void Petra::timerCallback(const ros::TimerEvent& t){
   std::vector<petra::Leg> vectorLegs = this->processImg->getLegsFromImage(image, this->globalScan.header.frame_id);
 
   petra::People people = this->getPairs(&vectorLegs, this->globalScan.header.stamp);
+  people.header.frame_id = this->globalScan.header.frame_id;
 
   if (this->correlationEuclideanEnable == true){
     this->correlationEuclidean->correlatePeople(&people, &vectorLegs);
