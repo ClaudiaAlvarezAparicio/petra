@@ -1,41 +1,32 @@
-#############################
-##  DIRECTORY EXPLANATION  ##
-#############################
-Inside of tf_keras_folder we have:
-- input folder to include the .npy files to train the neural network
-- model folder where the train model will be saved
-- output folder where the output of the prediction of the network will be saved
+## Prerequisites
+* Docker installation
 
-#############################
-## SINGULARITY INSTALATION ##
-#############################
+## Training Folder Explanation
+* input folder: to include the .npy files to train the neural network
+* model folder: where the trained model will be saved
+* output folder: where the output of the test prediction will be saved
 
-$ VERSION=2.5.2  
-$ wget https://github.com/singularityware/singularity/releases/download/$VERSION/singularity-$VERSION.tar.gz  
-$ tar xvf singularity-$VERSION.tar.gz  
-$ cd singularity-$VERSION  
-$ sudo apt-get install libarchive-dev  
-$ ./configure --prefix=/usr/local  
-$ make  
-$ sudo make install  
+## Execution
+First put the .npy files created in the petra/neural_network/training/input/ folder.
 
-#######################################################
-## TRANSFORM .h5 model of Keras to .pb of TENSORFLOW ##
-#######################################################
+```
+$ docker pull tensorflow/tensorflow:1.13.1-py3
+$ docker run -it -v <absolute_path_training_folder>:/PeTra --rm tensorflow/tensorflow:1.13.1-py3 bash
+```
+Inside the docker container:
+```
+$ cd /PeTra/
+$ ./prerequisites.sh 
+$ ./train_export_model.sh 
+```
+The project https://github.com/amir-abdi/keras_to_tensorflow allow transforming .h5 model of Keras to .pb of Tensorflow. The execution of this script is included in the ./train_export_model.sh script. It reports some important data:
+```
+"Converted output node names are: ['conv2d_19/Sigmoid']"
+This value "conv2d_19/Sigmoid" is necessary to specify in the  petra/petra/config/parameters.yaml file.
 
-$ cd petra/neural_network/tf_keras_folder
-$ git clone https://github.com/amir-abdi/keras_to_tensorflow  
+```
+Once the model is trained and in a TensorFlow format.
 
-
-#############################
-##     BUILD CONTAINER     ##
-#############################
-$ cd neural_network
-$ singularity image.create -s 2600 tf_keras_container.img
-$ sudo singularity build tf_keras_container.img tf_keras_build_container
-$ sudo singularity shell -B ./tf_keras_folder/:/root/tf_keras_folder tf_keras_container.img
-Singularity tf_keras_container.img:~> mkdir /root/tf_keras_folder/
-Singularity tf_keras_container.img:~> exit
-$ sudo singularity shell -B ./tf_keras_folder/:/root/tf_keras_folder tf_keras_container.img
-Singularity tf_keras_container.img:~> cd tf_keras_folder/
-Singularity tf_keras_container.img:~/tf_keras_folder> ./execute.sh
+```
+cp petra/neural_network/training/model/model.pb petra/petra/model/
+```

@@ -17,8 +17,13 @@ These instructions will get you a copy of the project up and running on your loc
 * ROS TensorFlow installation
 ```
 $ cd ~/catkin_ws/src/  
-$ git clone https://github.com/ethz-asl/tensorflow_catkin.git  
-$ git clone https://github.com/catkin/catkin_simple.git
+&& git clone https://github.com/ethz-asl/tensorflow_catkin.git  
+&& cd tensorflow_catkin/  
+&& git checkout bcd27b06e65dd88c3f2f2875ff498b3c2bddcff3  
+&& cd ../  
+& git clone https://github.com/catkin/catkin_simple.git  
+&& cd catkin_simple/  
+&& git checkout 0e62848b12da76c8cc58a1add42b4f894d1ac21e  
 ```
 To compile tensorflow_catkin package with CPU optimization. Open the CMakeLists.txt file and change to ON the flag: "-Dtensorflow_OPTIMIZE_FOR_NATIVE_ARCH=OFF"
 
@@ -98,41 +103,10 @@ With another LIDAR it can work but is better train a new neural network model.
 
 ### Data Labelig for Training
 
-To train a new neural network model is necessary get the LIDAR data and label it. The data_labeling folder has a README to label data with a KIO RTLS system.
+To train a new neural network model is necessary to get the LIDAR data and label it. The data_labeling folder has a README to label data with a KIO RTLS system or with the own PeTra.
 
 
 ### Network Model Training
 
-Once the data to train the network is ready, is time to train the model. The neural_network folder contains the train file and the directories tree to easily train the model. First put the .npy files created in the petra/neural_network/tf_keras_folder/input/ folder.
+Once the data to train the network is ready, its time to train the model. The neural_network folder contains a README with the necessary steps to train the model. 
 
-#### Singularity installation
-
-```
-$ VERSION=2.5.2  
-$ wget https://github.com/singularityware/singularity/releases/download/$VERSION/singularity-$VERSION.tar.gz  
-$ tar xvf singularity-$VERSION.tar.gz  
-$ cd singularity-$VERSION  
-$ sudo apt-get install libarchive-dev  
-$ ./configure --prefix=/usr/local  
-$ make  
-$ sudo make install  
-
-```
-
-#### Build a Singularity Container
-```
-$ cd petra/neural_network/
-$ git clone https://github.com/amir-abdi/keras_to_tensorflow.git  
-$ singularity image.create -s 2600 tf_keras_container.img  
-$ sudo singularity build tf_keras_container.img tf_keras_build_container  
-$ sudo singularity shell -B ../tf_keras_folder/:/root/tf_keras_folder tf_keras_container.img  
-$ Singularity tf_keras_container.img:~> python3.5 train_neural_network.py
-$ Singularity tf_keras_container.img:~> python3.5 tf_keras_folder.py --input_model="/root/tf_keras_folder/model/model.h5" --output_model="/root/tf_keras_folder/model/model.pb"  
-$ Singularity tf_keras_container.img:~> exit  
-```
-
-Once the model is trained and in a TensorFlow format.
-
-```
-cp petra/neural_network/tf_keras_folder/model/model.pb /petra/petra/model/
-```

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-import cv2
+import tensorflow as tf
 import numpy as np
+import datetime
 from keras.models import Model, load_model
 from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, UpSampling2D
 from keras.optimizers import Adam
@@ -74,23 +75,14 @@ def get_unet():
     model.compile(optimizer=Adam(lr=5e-4), loss=dice_coef_loss, metrics=[dice_coef])
     return model
 
-# Preprocess images
-def preprocess(imgs):
-    imgs_p = np.swapaxes(imgs,1,2)
-    imgs_p = np.swapaxes(imgs_p,2,3)
-    return imgs_p
-
 # Entrenamiento y test
 def train_and_predict(args):
     print('-'*50)
-    print('Load and Preprocess data')
+    print('Load data')
     print('-'*50)
 
-    train_points = np.load('./input/npy_total_points.npy')
-    train_labels = np.load('./input/npy_total_labels.npy')
-
-    train_points = preprocess(train_points)
-    train_labels = preprocess(train_labels)
+    train_points = np.load('./input/npy_total_raw.npy')
+    train_labels = np.load('./input/npy_total_label.npy')
 
     print('-'*50)
     print('Shape of train data: ',train_points.shape)
@@ -109,27 +101,32 @@ def train_and_predict(args):
               callbacks=[model_checkpoint])
 
     print('-'*50)
-    print('Load and Preprocess data test')
-    print('-'*50)
-
-    test_points = np.load('./input/npy_total_test_points.npy')
-    test_points = preprocess(test_points)
-
-    print('-'*50)
-    print('Shape of test data: ', test_points.shape)
-    print('-'*50)
-
-    print('-'*50)
     print('Load weights of model')
     print('-'*50)
     model.load_weights('./model/model.h5')
 
+## Uncomment for predcit on test data
+#    print('-'*50)
+#    print('Load data test')
+#    print('-'*50)
+
+#    test_points = np.load('./input/npy_total_test_points.npy')
+
+#    print('-'*50)
+#    print('Shape of test data: ', test_points.shape)
+#    print('-'*50)
+
+#    print('-'*50)
+#    print('Prediction test data')
+#    print('-'*50)
+#    
+#    test_labels_generated = model.predict(test_points, verbose=1)
+#    # Save output of prediction
+#    np.save('./output/test_labels' , test_labels_generated)
+
     print('-'*50)
-    print('Prediction test data')
+    print('Save model')
     print('-'*50)
-    test_labels_generated = model.predict(test_points, verbose=1)
-    # Save output of prediction
-    np.save('./output/test_labels' , test_labels_generated)
     model.save('./model/model.h5', include_optimizer=False)
 
 if __name__ == '__main__':

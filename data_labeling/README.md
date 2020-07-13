@@ -20,9 +20,12 @@ $ catkin_make
 ```
 
 ### For launch it
+
 1.- Change the name of the topic where kio_rtls publish
 
 2.- roslaunch data_labeling data_labeling_one_person.launch rosbag_file:=<absolute_path_to_bag_file>
+
+The <absolute_path_to_directory_where_save_npys> must have two directories named "raw" and "label" where the .npy files for each rosbags will be saved. 
 
 This launcher run the node data_labeling_one_person and the script gather_npy_data_bw.py
 
@@ -30,6 +33,8 @@ This launcher run the node data_labeling_one_person and the script gather_npy_da
 In this case, the labeling of the information to train the neural network used by PeTra, is carried out using the data provided by itself. It is necessary configure the topic of the LIDAR in the PeTra's parameter.yaml file
 
 roslaunch data_labeling data_labeling_with_petra.launch rosbag_file:=<absolute_path_to_bag_file> npy_directory:=<absolute_path_to_directory_where_save_npys>
+
+The <absolute_path_to_directory_where_save_npys> must have two directories named "raw" and "label" where the .npy files for each rosbags will be saved. 
 
 ## Scripts explanation
 
