@@ -11,112 +11,56 @@ int main(int argc, char** argv){
   ros::NodeHandle nh;
   DataLabelingPetra* dl = new DataLabelingPetra(nh);
   ros::spin();
-  std::cout << "TERMINA LA EJECUCION" << '\n';
+
   dl->save_npy();
 
   return 0;
 }
 
-DataLabelingPetra::DataLabelingPetra(ros::NodeHandle nh):
-tf_(),range_person(0.30), target_frame("/base_laser_link"), private_nh_("~"){
+DataLabelingPetra::DataLabelingPetra(ros::NodeHandle nh): private_nh_("~"){
   // Save params
   private_nh_.getParam("rosbag_file", this->rosbag);
   private_nh_.getParam("npy_directory", this->directory);
   private_nh_.getParam("scan_topic", this->scan_topic);
 
-  // Publishers and subscribers
-  pub_data = nh.advertise<data_labeling::DataLabelingBW>("data_labeling", 100);
-  petra_sub = nh.subscribe("/people", 1, &DataLabelingPetra::petraCallback, this);
-  scan_sub= nh.subscribe(this->scan_topic, 10, &DataLabelingPetra::scanCallback,this);
-  markers_pub = nh.advertise<visualization_msgs::Marker>("/visualization_marker", 20);
-  // Matrix initialization
-  this->initialize_matrix();
+  // Sync PeTra and Scan
+  people_sub.subscribe(nh, "/people", 1);
+  scan_sub.subscribe(nh, this->scan_topic, 1);
+  
+  sync.reset(new Sync(MySyncPolicy(10), people_sub, scan_sub));      
+  sync->registerCallback(boost::bind(&DataLabelingPetra::peopleScanCallback, this, _1, _2));
 }
 
-/*
- * Laser Callback
- */
-void DataLabelingPetra::scanCallback(const sensor_msgs::LaserScan& scan){
-  this->historicScan.push_back(scan);
-}
 
-void DataLabelingPetra::petraCallback(const petra::People& petra){
-    // Get lidar scan
-    int counter = 0;
-    sensor_msgs::LaserScan scan = this->getLaserScan(petra.header);
-    if (petra.people.size() > 0){       
+void DataLabelingPetra::peopleScanCallback(const petra::PeopleConstPtr& petra, const sensor_msgs::LaserScanConstPtr& scan){
+
+    if (petra->people.size() > 0){       
       // Matrix initialization
       this->initialize_matrix();
-      for (int i = 0; i < petra.people.size(); i++){
-        this->classify_scan_data(scan, petra.people[i].position_person);
+
+      for (int i = 0; i < petra->people.size(); i++){
+      
+        // Si se han identificado las piernas de la persona, etiquetamos en base a esa info
+        if (petra->people[i].leg1.position.x != 0 || petra->people[i].leg1.position.y || petra->people[i].leg2.position.x != 0 || petra->people[i].leg2.position.y != 0){
+          range_person = 0.15;
+          this->classify_scan_data(scan, petra->people[i].leg1.position);
+          this->classify_scan_data(scan, petra->people[i].leg2.position);
+        }else{
+          // Si no etiquetamos con el centro de la persona
+          range_person = 0.30;
+          this->classify_scan_data(scan, petra->people[i].position_person);
+        }
       }
-      // Cuando acabamos de procesar todos los datos que estamos recibiendo de petra los guardamos.
-      // Asi si hay mas de una persona en la imagen se guardan todos los puntos
-      counter = this->remove_lines(&matrix_label[0]);
-      if (counter > 5){
-        this->global_raw.push_back(this->matrix_to_vector(matrix_raw));
-        this->global_label.push_back(this->matrix_to_vector(matrix_label));
-      }
+
+      this->global_raw.push_back(this->matrix_to_vector(matrix_raw));
+      this->global_label.push_back(this->matrix_to_vector(matrix_label));
+
     }
 }
 
 
 /*
- * Method that remove the lines of the matrix that receives as parameter
- * Return the number of points color un white in the matrix received after remove the lines
- */
-int DataLabelingPetra::remove_lines(int matrix_input[LENGTH_MATRIX][LENGTH_MATRIX]){
-    int count_points_label=0;
-    cv::Mat src, dst;
-    // Create a cv Mat with the information of the matrix
-    src.create( LENGTH_MATRIX, LENGTH_MATRIX, CV_8UC1);
-    for(int i = 0; i < LENGTH_MATRIX; i++){
-      for(int j = 0; j < LENGTH_MATRIX; j++){
-        if(matrix_input[i][j] == 1){
-          src.at<uchar>(Point(i,j)) = 255;
-        }else{
-          src.at<uchar>(Point(i,j)) = 0;
-        }
-      }
-    }  
-
-    // Apply to the matrix the edge detection algorithm, Canny
-    Canny(src, dst, 50, 200, 3);
-    vector<Vec4i> lines;
-    // dst -> Output of the edge detector
-    // lines -> A vector that will store the parameters (x_{start}, y_{start}, x_{end}, y_{end}) of the detected lines
-    // 1-> The resolution of the parameter r in pixels
-    // CV_PI/360 -> the resolution in degrees
-    // 15 -> the minimum number of intersections to “detect” a line
-    // 10 -> The minimum number of points that can form a line. Lines with less than this number of points are disregarded.
-    // 10 -> The maximum gap between two points to be considered in the same line.
-    HoughLinesP(dst, lines, 1, CV_PI/360, 15, 10, 5 );
-    for( size_t i = 0; i < lines.size(); i++ ){
-       Vec4i l = lines[i];
-       line(src, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0), 10, CV_AA);
-    }
-
-    // Rewrite the points in the matrix receives 
-    for(int i = 0; i < LENGTH_MATRIX; i++){
-      for(int j = 0; j < LENGTH_MATRIX; j++){
-        if(src.at<uchar>(Point(i,j)) == 255){
-          matrix_input[i][j] = 1;
-          count_points_label++;
-        }else{
-           matrix_input[i][j] = 0;
-        }
-        
-      }
-    }  
-
-    return count_points_label;
-}
-
-
-
-
-/*
- * Method that returns the lidar scan with the same  timestamp than petra
+ * Method that returns the lidar scan with the same timestamp than petra
  */
 sensor_msgs::LaserScan DataLabelingPetra::getLaserScan(std_msgs::Header header_petra){
   sensor_msgs::LaserScan scan;
@@ -134,7 +78,6 @@ sensor_msgs::LaserScan DataLabelingPetra::getLaserScan(std_msgs::Header header_p
 }
 
 void DataLabelingPetra::save_npy(){
-  std::cout << "save_npy" << '\n';
   const long unsigned longs [] = {this->global_raw.size(), LENGTH_MATRIX, LENGTH_MATRIX,1};
 
   std::vector<int> global_vector_raw = this->vector_to_global_vector(this->global_raw);
@@ -170,8 +113,8 @@ std::vector<int> DataLabelingPetra::vector_to_global_vector(std::vector<std::vec
  * In the matrix_raw, like 1 all the points of the laser, like 0 the rest
  * In the matrix_label with 1s the points of the laser that compose a person
  */
-int DataLabelingPetra::classify_scan_data(sensor_msgs::LaserScan scan_info , geometry_msgs::Point point_person){
-    std::vector<float> vector_scan = scan_info.ranges;
+void DataLabelingPetra::classify_scan_data(const sensor_msgs::LaserScanConstPtr& scan_info , geometry_msgs::Point point_person){
+    std::vector<float> vector_scan = scan_info->ranges;
     geometry_msgs::Point point_laser;
     bool in_range = false;
     int j, k;
@@ -203,8 +146,6 @@ int DataLabelingPetra::classify_scan_data(sensor_msgs::LaserScan scan_info , geo
         }
       }
     }   
-
-    return counter;
 }
 
 
@@ -230,7 +171,7 @@ bool DataLabelingPetra::is_in_range(geometry_msgs::Point point_person, geometry_
  * Method that transform the range provided by the laser to polar coordinates
  * Return a Point object with the point in cartesian coordinates (x,y)
  */
-geometry_msgs::Point DataLabelingPetra::get_point_xy(float range, int index, sensor_msgs::LaserScan scan_data){
+geometry_msgs::Point DataLabelingPetra::get_point_xy(float range, int index, const sensor_msgs::LaserScanConstPtr& scan_data){
 
   geometry_msgs::Point point_xy;
   float polar_d = range;
@@ -241,7 +182,7 @@ geometry_msgs::Point DataLabelingPetra::get_point_xy(float range, int index, sen
   float alfa_radians = 0;
 
   // alfa is the complementary angle in the polar coordinates
-  alfa_radians = (scan_data.angle_increment * (index + 1)) + scan_data.angle_min;
+  alfa_radians = (scan_data->angle_increment * (index + 1)) + scan_data->angle_min;
 
   // Calculate the point (x,y)
   cartesian_x = polar_d * cos(alfa_radians);

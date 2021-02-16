@@ -38,7 +38,7 @@ The <absolute_path_to_directory_where_save_npys> must have two directories named
 
 ## Scripts explanation
 
-There are 3 types of scripts:
+There are 4 types of scripts:
 
 1.- gather_npy_data_bw.py: this script create 2 npy files (one for raw data an other for label data). This script creates
 an structure of directories in the folder of the .bag file received as parameter. In this directories were saved the npy files
@@ -58,3 +58,6 @@ rosrun data_labeling join_npy_files_bw.py <absolute_path>/npy_files
 
 3.- npy_to_images_bw.py: this script create the images containing in the .npy file that receives as parameter. To execute it:
 rosrun data_labeling npy_to_images_bw.py <absolute_path_npy_file> <name_of_imagenes> <absolute_path_directory_to_save_the_images>.
+
+4.- generate_npys_petra.sh: allow to create all the npys for a directory that contains rosbags.
+./generate_npys.sh <absolute_path_rosbags> <absolute_path_where_save_npys>

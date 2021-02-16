@@ -4,13 +4,22 @@
 #include "tf/message_filter.h"
 #include "message_filters/subscriber.h"
 #include "sensor_msgs/LaserScan.h"
-#include "data_labeling/DataLabelingBW.h"
 #include <visualization_msgs/Marker.h>
 #include "petra/People.h"
+#include "tf/message_filter.h"
+#include "tf/tf.h"
+#include "message_filters/subscriber.h"
+#include "message_filters/time_synchronizer.h"
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/exact_time.h>
+#include <message_filters/sync_policies/approximate_time.h>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "npy.hpp"
+
+using namespace ros;
+using namespace message_filters;
 
 #define LENGTH_MATRIX 256
 
@@ -26,17 +35,14 @@ namespace data_labeling_petra{
 
     private:
         ros::NodeHandle private_nh_;
-        message_filters::Subscriber<geometry_msgs::PointStamped> point_sub;
-        ros::Subscriber scan_sub, petra_sub;
+        message_filters::Subscriber<petra::People> people_sub;
+        message_filters::Subscriber<sensor_msgs::LaserScan>  scan_sub;
+        typedef sync_policies::ApproximateTime<petra::People, sensor_msgs::LaserScan> MySyncPolicy;
+        typedef Synchronizer<MySyncPolicy> Sync;
+        boost::shared_ptr<Sync> sync;
 
-        ros::Publisher pub_data;
-        ros::Publisher markers_pub;
-        tf::TransformListener tf_;
-        tf::MessageFilter<geometry_msgs::PointStamped> * tf_filter;
-        std::string target_frame;
         std::string rosbag;
         std::string directory;
-
         std::string scan_topic;
         
         float range_person;
@@ -52,17 +58,16 @@ namespace data_labeling_petra{
         void petraCallback(const petra::People& petra);
         sensor_msgs::LaserScan getLaserScan(std_msgs::Header header_petra);
 
-        int classify_scan_data(sensor_msgs::LaserScan scan_info, geometry_msgs::Point point_person);
+        void peopleScanCallback(const petra::PeopleConstPtr& petra, const sensor_msgs::LaserScanConstPtr& scan);
+        void classify_scan_data(const sensor_msgs::LaserScanConstPtr& scan_info, geometry_msgs::Point point_person);
         bool is_in_range(geometry_msgs::Point point_person, geometry_msgs::Point point_laser);
-        geometry_msgs::Point get_point_xy(float range, int index, sensor_msgs::LaserScan scan_data);
+        geometry_msgs::Point get_point_xy(float range, int index, const sensor_msgs::LaserScanConstPtr& scan_data);
         void get_point_in_matrix(geometry_msgs::Point point_laser, int *i, int *j);
         void initialize_matrix();
         std::vector<int> matrix_to_vector(int matriz[LENGTH_MATRIX][LENGTH_MATRIX]);
         bool is_good_value(float num);
-        void publish_points(std::vector<geometry_msgs::Point> vector_points, ros::Time time);
         std::string get_name_npy_file();
         std::vector<int> vector_to_global_vector(std::vector<std::vector<int> > global_vector);
-        int remove_lines(int [LENGTH_MATRIX][LENGTH_MATRIX]); 
   };
 };
 

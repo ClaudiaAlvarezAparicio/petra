@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
    std_msgs
    tf
    message_generation
+   message_filters
 )
 find_package(OpenCV REQUIRED)
 
@@ -22,7 +23,7 @@ generate_messages(
 )
 
 catkin_package(
-	CATKIN_DEPENDS message_runtime
+	CATKIN_DEPENDS message_runtime message_filters
 )
 
 include_directories(

@@ -10,7 +10,7 @@
     	<rosparam file="$(find petra)/config/parameters.yaml" command="load" />
   	</node>
 
-	<node pkg="data_labeling" type="data_labeling_with_petra" name="data_labeling_tiago_with_petra" output="screen">
+	<node pkg="data_labeling" type="data_labeling_with_petra" name="data_labeling_with_petra" output="screen">
 		<param name="rosbag_file" value="$(arg rosbag_file)" />
 		<param name="scan_topic" value="$(arg scan_topic)" />
     	<param name="npy_directory" value="$(arg npy_directory)" />
