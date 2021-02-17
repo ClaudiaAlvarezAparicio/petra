@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<launch>
+  <param name="use_sim_time" value="true" />
+  <arg name="rosbag_file" default="" />
+  <arg name="rosbag_start_delay" default="2.0" />
+  <arg name="scan_topic" default="/scan" />
+  <arg name="threshold" default="0.30" /> <!-- threshold between people position at map and the PeTra estimation -->
+  <arg name="method" default="" /> <!-- kio or petra-->
+  <arg name="csv_directory" default="$(find evaluation)/csv/" />
+
+
+
+  <node pkg="evaluation" type="evaluation" name="evaluation" args="" output="screen">
+    <rosparam file="$(find evaluation)/config/parameters.yaml" command="load" />
+    <param name="rosbag_file" value="$(arg rosbag_file)" />
+    <param name="threshold" value="$(arg threshold)" />
+    <param name="method" value="$(arg method)" />
+    <param name="csv_directory" value="$(arg csv_directory)" />
+  </node>  
+
+  <node pkg="petra" type="petra" name="petra" args="" output="screen">
+    <rosparam file="$(find petra)/config/parameters.yaml" command="load" />
+    <param name="scanTopic" value="$(arg scan_topic)" />
+  </node>
+
+
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg rosbag_file) /rb1_base/front_laser/scan:=/scan" required="true" launch-prefix="bash -c 'sleep $(arg rosbag_start_delay); $0 $@' "/>
+  
+</launch>
