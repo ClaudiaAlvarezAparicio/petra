@@ -11,13 +11,13 @@ std::vector<petra::Leg> ProcessImage::getLegsFromImage(cv::Mat image, std::strin
   cv::threshold( image, image, 200, 255, CV_THRESH_BINARY);
 
 
-  int dilate = 3;
-  Mat element_dilate = getStructuringElement(cv::MORPH_CROSS,
-             cv::Size(2 * dilate + 1, 2 * dilate + 1),
-             cv::Point(dilate, dilate));
+  //int dilate = 3;
+  //Mat element_dilate = getStructuringElement(cv::MORPH_CROSS,
+  //           cv::Size(2 * dilate + 1, 2 * dilate + 1),
+  //           cv::Point(dilate, dilate));
 
   // Apply dilation on the image
-  cv::dilate(image,image,element_dilate);
+  //cv::dilate(image,image,element_dilate);
 
   //Find the contours of the image
   std::vector<std::vector<cv::Point> > contours;

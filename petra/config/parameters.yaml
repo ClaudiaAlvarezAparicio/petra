@@ -5,5 +5,5 @@ correlationEuclidean: false # Activate/Deactivate euclidean correlation (boolean
 correlationKalman: true # Activate/Deactivate Kalman Filter correlation (boolean)
 historicTime: 30 # Time of people in the history (seconds)
 petraTimer: 0.01 # PeTra process timer (seconds)
-networkModel: "model.pb" # Network model
+networkModel: "model_bootstrapping.pb" # Network model
 outNerworkLayer: "conv2d_19_1/concat" # Output layer of neural network model
